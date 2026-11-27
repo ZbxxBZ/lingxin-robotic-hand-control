@@ -1,0 +1,14 @@
+# 打包好的版本和打包中间产物（不推送）
+releases/
+build/
+dist/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# 镜像跟随的标定：每台机器、每个人自己标
+mirror_calibration.json
+
+# MediaPipe 手部模型：python 07_camera_mirror.py --download-model
+models/

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>L10 控制台</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">L10 灵巧手控制台</div>
+      <div id="status" class="pill pill-wait">连接中…</div>
+      <div id="device" class="device"></div>
+      <div class="spacer"></div>
+      <button id="btn-tare" class="btn" title="手张开、指尖不接触时使用">去皮</button>
+      <button id="btn-reset" class="btn" title="张开 + 掌部中立（官方控制台“重置”）">重置</button>
+      <button id="btn-stop" class="btn btn-danger" title="快捷键 Esc">停止并保持</button>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="control" aria-selected="true">手部控制</button>
+      <button class="tab" role="tab" data-tab="follow" aria-selected="false">镜像跟随<span id="tab-follow-badge" class="tab-badge" hidden></span></button>
+      <button class="tab" role="tab" data-tab="game" aria-selected="false">游戏<span id="tab-game-badge" class="tab-badge" hidden></span></button>
+      <button class="tab" role="tab" data-tab="handshake" aria-selected="false">握手<span id="tab-hs-badge" class="tab-badge" hidden></span></button>
+    </nav>
+
+    <main class="layout" data-panel="control">
+      <section class="col">
+        <div class="card">
+          <h2>关节控制 <span class="hint">拖动即发送 · 竖线为实测值 · 0 弯曲 / 255 伸直</span></h2>
+          <div id="joints"></div>
+          <div class="speed-row">
+            <span class="speed-label">速度</span>
+            <input id="speed" type="range" min="0" max="255" step="1" value="100" />
+            <span id="speed-val" class="mono">100</span>
+            <button id="btn-speed" class="btn btn-small">应用</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>预设动作 <span class="hint">迁移自官方控制台 2025.08.06</span></h2>
+          <div id="presets"></div>
+        </div>
+
+        <div class="card">
+          <h2>动画</h2>
+          <div class="anim-opts">
+            <label>间隔 <input id="anim-interval" type="number" min="50" step="10" placeholder="默认" /> ms</label>
+            <label>循环 <input id="anim-cycles" type="number" min="0" step="1" value="1" /> 轮（0 = 无限）</label>
+          </div>
+          <div id="animations" class="btn-grid"></div>
+          <div class="anim-status-row">
+            <div id="anim-status" class="anim-status">未播放</div>
+            <button id="btn-anim-stop" class="btn btn-small">停止动画</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="col">
+        <div class="vis-top">
+          <div class="card">
+            <h2>手部 3D <span class="hint">实体 = 实测 · 蓝色 = 目标 · 指尖颜色 = 压力</span></h2>
+            <canvas id="hand3d" role="img" aria-label="手部姿态 3D 视图"></canvas>
+            <div class="hand3d-bar">
+              <span id="hand-model-note" class="hint">正在加载官方模型…</span>
+              <span class="view-btns">
+                <button class="btn btn-small" data-view="palm">掌心</button>
+                <button class="btn btn-small" data-view="side">侧面</button>
+                <button class="btn btn-small" data-view="back">手背</button>
+                <button class="btn btn-small" data-view="default">斜视</button>
+              </span>
+            </div>
+          </div>
+          <div class="card">
+            <h2>指尖触觉点阵 <span class="hint">12×6 原始值</span> <span id="force-stale" class="stale" hidden>数据延迟</span></h2>
+            <div id="tactile" class="tactile"></div>
+            <div class="colorbar"><span>0</span><div class="colorbar-ramp"></div><span id="cbar-max">100</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>指尖力 <span class="hint">去皮后，每指点阵最大值 · 最近 10 秒</span></h2>
+          <div class="force-wrap">
+            <div id="force-bars" class="force-bars"></div>
+            <canvas id="force-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="vis-bottom">
+          <div class="card">
+            <h2>电机温度 <span class="hint">℃</span></h2>
+            <div id="temps" class="temps"></div>
+            <h2 class="mt">故障</h2>
+            <div id="faults" class="faults">无</div>
+          </div>
+          <div class="card">
+            <h2>日志</h2>
+            <div id="log" class="log"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <main class="cam-page" data-panel="camera" data-mode-active="follow" hidden>
+      <div class="card">
+        <h2>
+          <span data-mode="follow">镜像跟随 <span class="hint">L10 跟着你的手动 · Esc 随时停止</span></span>
+          <span data-mode="game">游戏：石头剪刀布 <span class="hint">按空格开一局 · L10 出什么开局前就定好了 · Esc 随时停止</span></span>
+        </h2>
+        <div class="cam-wrap">
+          <div class="cam-view">
+            <img id="cam-img" alt="摄像头画面（镜像）" />
+            <div id="cam-placeholder" class="cam-placeholder">摄像头未开启</div>
+            <div id="cam-score" class="cam-score" hidden></div>
+            <div class="cam-overlay">
+              <div id="cam-big" class="cam-big"></div>
+              <div id="cam-small" class="cam-small"></div>
+            </div>
+            <div id="cam-calib" class="cam-calib" hidden><div id="cam-calib-bar"></div></div>
+          </div>
+          <div class="cam-side">
+            <div id="cam-status" class="cam-status">摄像头未开启</div>
+            <div id="cam-phase" class="cam-phase"></div>
+            <div class="cam-row">
+              <label class="cam-index">摄像头 <input id="cam-index" type="number" min="0" max="9" step="1" value="0" /></label>
+              <button id="btn-cam" class="btn">开启摄像头</button>
+            </div>
+            <div data-mode="follow" class="cam-section">
+              <div class="group-title">跟随</div>
+              <div class="cam-row">
+                <button id="btn-follow" class="btn btn-primary" disabled>开始跟随</button>
+              </div>
+              <div class="group-title">防抖 <span class="hint">手不动时还在抖就调大；越大越稳，但细小动作跟得越少</span></div>
+              <div class="deadband-row">
+                <input id="deadband" type="range" min="0" max="20" step="1" value="6" />
+                <span id="deadband-val" class="mono">6</span>
+              </div>
+              <div class="group-title">标定 <span class="hint">每个姿势保持 1 秒 · 先标定再跟随</span></div>
+              <div id="calib-btns" class="cam-row"></div>
+              <div id="calib-status" class="cam-note"></div>
+            </div>
+            <div data-mode="game" class="cam-section">
+              <div class="group-title">石头剪刀布</div>
+              <div class="cam-row">
+                <button id="btn-game" class="btn" disabled>进入游戏</button>
+                <button id="btn-round" class="btn btn-primary" disabled title="快捷键：空格">开一局</button>
+              </div>
+              <div id="game-score" class="game-score">你 0 : 0 L10　平局 0</div>
+              <ol class="game-rules">
+                <li>点“进入游戏”，L10 摆好准备姿势。</li>
+                <li>按空格或“开一局”：L10 四指一握一松，喊“石头…剪刀…”。</li>
+                <li>屏幕出现“布！”时把手势亮给摄像头，保持不到 1 秒。</li>
+              </ol>
+              <div class="cam-note">只看四指：都弯是石头，都伸直是布，食指中指伸直、其余弯曲是剪刀。认不准时先去“镜像跟随”页标定。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <main class="hs-page" data-panel="handshake" hidden>
+      <div class="card">
+        <h2>握手 <span class="hint">每根手指按自己的指尖力停下 · 抽手自动松开 · Esc 立即松开</span></h2>
+        <div class="hs-wrap">
+          <div class="hs-main">
+            <div id="hs-state" class="hs-state">还没开始：点“开始握手”</div>
+            <div id="hs-sub" class="hs-sub"></div>
+            <div class="cam-row">
+              <button id="btn-hs" class="btn btn-primary">开始握手</button>
+              <button id="btn-hs-grip" class="btn" disabled title="快捷键：空格">握</button>
+              <button id="btn-hs-release" class="btn" disabled>松开</button>
+            </div>
+            <div class="hs-head"><span>手指</span><span>合拢程度</span><span>指尖力（竖线 = 握力）</span><span></span></div>
+            <div id="hs-fingers" class="hs-fingers"></div>
+          </div>
+          <div class="hs-side">
+            <div class="group-title">握力 <span class="hint">指尖力到这个值就停；越大握得越紧</span></div>
+            <div class="deadband-row">
+              <input id="hs-grip" type="range" min="5" max="55" step="1" value="25" />
+              <span id="hs-grip-val" class="mono">25</span>
+            </div>
+            <label class="hs-check"><input id="hs-auto-start" type="checkbox" checked /> 碰到指尖自动开始握</label>
+            <label class="hs-check"><input id="hs-auto-release" type="checkbox" checked /> 抽手自动松开</label>
+            <label class="hs-check"><input id="hs-use-thumb" type="checkbox" checked /> 拇指一起握（关掉只用四指，拇指停在准备姿态）</label>
+            <div class="group-title">怎么用</div>
+            <ol class="game-rules">
+              <li>点“开始握手”：L10 摆好准备姿态并记录指尖零点，这时别碰指尖。</li>
+              <li>把手伸进来，碰到指尖就开始握；也可以点“握”或按空格。</li>
+              <li>握住后把手往外抽，L10 就松开；点“松开”或按 Esc 也会立即松开。</li>
+            </ol>
+            <div class="cam-note">
+              手大手小都能握：每根手指碰到你的手、指尖力到了握力就停下；碰到手的侧面（指尖没力）时按“挡住”停下。
+              捏得太紧会自动往回松一点。拇指等四指碰到手才动，主要靠弯曲、翻滚只动一点，握力是四指的 60%。
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>

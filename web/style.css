@@ -1,0 +1,230 @@
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --text: #1f2933;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --danger: #dc2626;
+  --ok: #16a34a;
+  --warn: #d97706;
+  --radius: 10px;
+  font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-size: 14px; }
+.mono { font-family: Consolas, "SFMono-Regular", monospace; }
+.center { text-align: center; }
+.mt { margin-top: 14px; }
+
+/* ---------- 顶栏 ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 18px; background: #111827; color: #f9fafb;
+}
+.brand { font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+.device { color: #cbd5e1; font-size: 13px; }
+.spacer { flex: 1; }
+.pill { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.pill-ok { background: #14532d; color: #bbf7d0; }
+.pill-wait { background: #374151; color: #e5e7eb; }
+.pill-err { background: #7f1d1d; color: #fecaca; }
+
+/* ---------- 布局 ---------- */
+.layout {
+  display: grid; grid-template-columns: minmax(380px, 460px) 1fr; gap: 16px;
+  padding: 16px; max-width: 1600px; margin: 0 auto;
+}
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.vis-top { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; }
+.vis-bottom { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; }
+@media (max-width: 1150px) {
+  .layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .vis-top, .vis-bottom { grid-template-columns: 1fr; }
+}
+
+.card { background: var(--card); border-radius: var(--radius); padding: 14px 16px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+h2 { margin: 0 0 10px; font-size: 15px; }
+.hint { color: var(--muted); font-size: 12px; font-weight: 400; margin-left: 6px; }
+
+/* ---------- 按钮 ---------- */
+.btn {
+  border: 1px solid var(--line); background: #fff; color: var(--text);
+  padding: 6px 12px; border-radius: 7px; cursor: pointer; font-size: 13px;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.topbar .btn { background: #1f2937; color: #f9fafb; border-color: #374151; }
+.topbar .btn:hover { border-color: #93c5fd; color: #93c5fd; }
+.btn-danger, .topbar .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 600; }
+.btn-danger:hover, .topbar .btn-danger:hover { background: #b91c1c; color: #fff; border-color: #b91c1c; }
+.btn-small { padding: 4px 10px; font-size: 12px; }
+.btn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.btn-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.group-title { margin: 10px 0 6px; font-size: 12px; color: var(--muted); }
+.group-title:first-child { margin-top: 0; }
+
+/* ---------- 关节 ---------- */
+.joint-row { display: grid; grid-template-columns: 118px 1fr 62px; align-items: center; gap: 8px; padding: 3px 0; }
+.j-label { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.j-idx { display: inline-block; width: 18px; color: var(--muted); font-size: 12px; }
+.j-track { position: relative; height: 22px; display: flex; align-items: center; }
+.j-track input { width: 100%; margin: 0; accent-color: var(--accent); }
+.j-meas { position: absolute; top: 1px; width: 3px; height: 20px; background: var(--ok); border-radius: 2px; pointer-events: none; transform: translateX(-1px); }
+.j-val { text-align: right; font-family: Consolas, monospace; font-size: 13px; }
+.j-val small { display: block; color: var(--ok); font-size: 11px; }
+.speed-row { display: grid; grid-template-columns: 40px 1fr 36px auto; gap: 8px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.speed-row input { width: 100%; accent-color: var(--warn); }
+
+/* ---------- 动画 ---------- */
+.anim-opts { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; color: var(--muted); font-size: 13px; }
+.anim-opts input { width: 72px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; }
+.anim-status-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; gap: 8px; }
+.anim-status { color: var(--muted); font-size: 13px; }
+.anim-status.playing { color: var(--accent); font-weight: 600; }
+.btn small { color: var(--muted); margin-left: 4px; font-size: 11px; }
+
+/* ---------- 手部示意 ---------- */
+#hand3d { width: 100%; height: 360px; display: block; cursor: grab; touch-action: none; border-radius: 8px;
+  background: radial-gradient(ellipse at 50% 40%, #ffffff 0%, #eef2f7 70%, #e2e8f0 100%); }
+#hand3d.dragging { cursor: grabbing; }
+.hand3d-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; margin-top: 8px; }
+.view-btns { display: flex; gap: 4px; }
+.palm { fill: #f8e1d4; stroke: #d9b8a4; stroke-width: 2; }
+.finger { stroke: #f1cdb9; stroke-linecap: round; }
+.finger-outline { stroke: #d9b8a4; stroke-linecap: round; }
+.finger-target { stroke: #2563eb; stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: round; fill: none; opacity: .75; }
+.tip { stroke: #fff; stroke-width: 2; }
+.tip-text { font-size: 11px; fill: #111827; font-family: Consolas, monospace; text-anchor: middle; }
+.hand-label { font-size: 11px; fill: #6b7280; text-anchor: middle; }
+
+/* ---------- 触觉点阵 ---------- */
+.tactile { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.tactile-cell { text-align: center; }
+.tactile-cell canvas { width: 100%; max-width: 72px; aspect-ratio: 6 / 12; image-rendering: pixelated; border-radius: 5px; background: #000; }
+.tactile-name { font-size: 12px; margin-bottom: 4px; }
+.tactile-max { font-size: 11px; color: var(--muted); font-family: Consolas, monospace; }
+.tactile-empty { grid-column: 1 / -1; color: var(--muted); padding: 30px 0; text-align: center; }
+.colorbar { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 11px; color: var(--muted); }
+.colorbar-ramp { flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #000004, #57106e, #bc3754, #f98e09, #fcffa4); }
+
+/* ---------- 指尖力 ---------- */
+.force-wrap { display: grid; grid-template-columns: 220px 1fr; gap: 14px; align-items: center; }
+@media (max-width: 760px) { .force-wrap { grid-template-columns: 1fr; } }
+.force-row { display: grid; grid-template-columns: 46px 1fr 40px; gap: 6px; align-items: center; margin: 5px 0; font-size: 12px; }
+.force-track { height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+.force-fill { height: 100%; width: 0; border-radius: 6px; transition: width .08s linear; }
+.force-num { text-align: right; font-family: Consolas, monospace; }
+#force-chart { width: 100%; height: 180px; display: block; }
+
+/* ---------- 温度 / 故障 / 日志 ---------- */
+.temps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.temp { background: #f8fafc; border-radius: 6px; padding: 5px; text-align: center; }
+.temp-name { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.temp-val { font-family: Consolas, monospace; font-size: 14px; }
+.temp.hot .temp-val { color: var(--warn); font-weight: 700; }
+.faults { font-size: 13px; color: var(--ok); }
+.faults.has { color: var(--danger); }
+.log { max-height: 210px; overflow-y: auto; font-size: 12px; font-family: Consolas, "Microsoft YaHei", monospace; }
+.log div { padding: 2px 0; border-bottom: 1px dashed #f1f5f9; }
+.log .warning { color: var(--warn); }
+.log .error { color: var(--danger); }
+.log time { color: var(--muted); margin-right: 6px; }
+
+.stale { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 11px; font-weight: 600; }
+
+.toast {
+  position: fixed; right: 18px; bottom: 18px; max-width: 360px;
+  background: #111827; color: #fff; padding: 10px 14px; border-radius: 8px;
+  font-size: 13px; opacity: 0; transform: translateY(8px); transition: all .2s; pointer-events: none;
+}
+.toast.show { opacity: .95; transform: none; }
+
+/* ---------- 摄像头镜像 ---------- */
+.cam-wrap { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(220px, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .cam-wrap { grid-template-columns: 1fr; } }
+.cam-view { position: relative; aspect-ratio: 4 / 3; background: #0f172a; border-radius: 8px; overflow: hidden; }
+.cam-view img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.cam-view img:not([src]) { display: none; }
+.cam-placeholder[hidden] { display: none; }
+.cam-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 14px; text-align: center; padding: 16px; }
+.cam-score { position: absolute; left: 10px; top: 8px; color: #fff; font-size: 18px; font-weight: 700; text-shadow: 0 1px 3px #000, 0 0 2px #000; }
+.cam-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.cam-big { color: #fff; font-size: clamp(36px, 8vw, 72px); font-weight: 800; text-shadow: 0 2px 8px #000, 0 0 3px #000; }
+.cam-small { color: #fff; font-size: clamp(14px, 2.2vw, 22px); font-weight: 600; margin-top: 6px; text-shadow: 0 1px 4px #000, 0 0 2px #000; }
+.cam-calib { position: absolute; left: 12px; right: 12px; bottom: 12px; height: 8px; background: rgba(255,255,255,.25); border-radius: 4px; overflow: hidden; }
+.cam-calib div { height: 100%; width: 0; background: var(--ok); }
+.cam-side { display: flex; flex-direction: column; gap: 8px; }
+.cam-side .group-title { margin: 6px 0 0; }
+.cam-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cam-status { font-size: 13px; line-height: 1.6; }
+.cam-status .ok { color: var(--ok); font-weight: 600; }
+.cam-status .warn { color: var(--warn); font-weight: 600; }
+.cam-status .err { color: var(--danger); font-weight: 600; }
+.cam-phase { font-size: 12px; color: var(--warn); min-height: 1em; }
+.cam-note { font-size: 12px; color: var(--muted); }
+.cam-index { font-size: 12px; color: var(--muted); }
+.cam-index input { width: 46px; padding: 3px 5px; border: 1px solid var(--line); border-radius: 6px; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+.btn-primary.on { background: var(--warn); border-color: var(--warn); }
+.btn:disabled, .btn:disabled:hover { opacity: .45; cursor: not-allowed; border-color: var(--line); color: var(--muted); background: #f8fafc; transform: none; }
+.btn.done { border-color: var(--ok); color: var(--ok); }
+
+/* ---------- 选项卡 ---------- */
+.tabs { display: flex; gap: 4px; padding: 10px 16px 0; border-bottom: 1px solid var(--line); background: var(--bg); }
+.tab {
+  border: 1px solid transparent; border-bottom: none; background: transparent; color: var(--muted);
+  padding: 8px 20px; font-size: 14px; border-radius: 8px 8px 0 0; cursor: pointer; margin-bottom: -1px;
+  display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
+}
+.tab:hover { color: var(--text); }
+.tab.active { background: var(--card); color: var(--text); font-weight: 600; border-color: var(--line); }
+.tab-badge { padding: 1px 7px; border-radius: 999px; background: #dcfce7; color: #166534; font-size: 11px; font-weight: 600; }
+.tab-badge[hidden] { display: none; }
+main[hidden] { display: none !important; }
+.cam-page { padding: 16px; max-width: 1400px; margin: 0 auto; }
+.cam-page .cam-wrap { grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr); }
+.cam-page .cam-view { max-height: calc(100vh - 170px); }
+@media (max-width: 900px) { .cam-page .cam-wrap { grid-template-columns: 1fr; } }
+
+/* 镜像跟随 / 游戏 两个选项卡共用摄像头画面，只切换右侧内容 */
+.cam-page[data-mode-active="follow"] [data-mode="game"],
+.cam-page[data-mode-active="game"] [data-mode="follow"] { display: none; }
+.cam-section { display: flex; flex-direction: column; gap: 8px; }
+.game-score { font-size: 22px; font-weight: 700; margin: 4px 0; }
+.game-rules { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; }
+.deadband-row { display: grid; grid-template-columns: 1fr 32px; gap: 8px; align-items: center; }
+.deadband-row input { width: 100%; accent-color: var(--accent); }
+.deadband-row .mono { text-align: right; }
+
+/* ---------- 握手 ---------- */
+.hs-page { padding: 16px; max-width: 1200px; margin: 0 auto; }
+.hs-wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .hs-wrap { grid-template-columns: 1fr; } }
+.hs-main { display: flex; flex-direction: column; gap: 10px; }
+.hs-side { display: flex; flex-direction: column; gap: 8px; }
+.hs-state { font-size: 22px; font-weight: 700; }
+.hs-state.holding { color: var(--ok); }
+.hs-state.closing, .hs-state.armed { color: var(--accent); }
+.hs-sub { color: var(--muted); font-size: 13px; min-height: 1em; }
+.hs-head, .hs-row { display: grid; grid-template-columns: 56px 1fr 1.4fr 52px; gap: 10px; align-items: center; }
+.hs-head { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.hs-fingers { display: flex; flex-direction: column; gap: 8px; }
+.hs-row { font-size: 13px; }
+.hs-bar { position: relative; height: 14px; background: #f1f5f9; border-radius: 7px; overflow: hidden; }
+.hs-fill { height: 100%; width: 0; border-radius: 7px; background: var(--accent); transition: width .08s linear; }
+.hs-force .hs-fill { background: var(--ok); }
+.hs-force .hs-fill.over { background: var(--danger); }
+.hs-mark { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #111827; opacity: .55; }
+.hs-num { position: absolute; right: 6px; top: -1px; font-size: 11px; font-family: Consolas, monospace; color: #111827; }
+.hs-chip { text-align: center; font-size: 12px; border-radius: 999px; padding: 1px 0; color: var(--muted); }
+.hs-chip.contact { background: #dcfce7; color: #166534; font-weight: 600; }
+.hs-chip.blocked { background: #fef3c7; color: #92400e; font-weight: 600; }
+.hs-chip.limit { background: #f1f5f9; color: var(--muted); }
+.hs-check { font-size: 13px; display: flex; align-items: center; gap: 6px; }

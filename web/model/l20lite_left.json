@@ -1,0 +1,903 @@
+{
+ "model": "L20Lite (L10)",
+ "side": "left",
+ "source": "linker-bot/linker-sim-assets hands/l20lite (a2fe2a7 2026-11-25)",
+ "license": "Apache-2.0",
+ "convention": "linear-fit-v0: angle = upper + (lower - upper) * raw / 255",
+ "root": "lh_hand_base_link",
+ "channels": [
+  "lh_thumb_cmc_pitch",
+  "lh_thumb_cmc_yaw",
+  "lh_index_mcp_pitch",
+  "lh_middle_mcp_pitch",
+  "lh_ring_mcp_pitch",
+  "lh_pinky_mcp_pitch",
+  "lh_index_mcp_roll",
+  "lh_ring_mcp_roll",
+  "lh_pinky_mcp_roll",
+  "lh_thumb_cmc_roll"
+ ],
+ "joints": [
+  {
+   "name": "lh_thumb_cmc_roll",
+   "type": "revolute",
+   "parent": "lh_hand_base_link",
+   "child": "lh_thumb_metacarpals_base1",
+   "xyz": [
+    -0.013419,
+    -0.012551,
+    0.060602
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    -0.9999619,
+    0.0,
+    -0.0087265
+   ],
+   "lower": 0.0,
+   "upper": 1.03,
+   "mimic": null
+  },
+  {
+   "name": "lh_thumb_cmc_yaw",
+   "type": "revolute",
+   "parent": "lh_thumb_metacarpals_base1",
+   "child": "lh_thumb_metacarpals_base2",
+   "xyz": [
+    0.035797,
+    0.00065879,
+    0.00045944
+   ],
+   "rpy": [
+    0.13232,
+    -0.0087266,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    0.0871564,
+    0.9961946
+   ],
+   "lower": 0.0,
+   "upper": 1.4,
+   "mimic": null
+  },
+  {
+   "name": "lh_thumb_cmc_pitch",
+   "type": "revolute",
+   "parent": "lh_thumb_metacarpals_base2",
+   "child": "lh_thumb_metacarpals",
+   "xyz": [
+    0.0036974,
+    -0.015398,
+    -0.0019891
+   ],
+   "rpy": [
+    0.0,
+    -0.9163,
+    1.8064
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.52,
+   "mimic": null
+  },
+  {
+   "name": "lh_thumb_mcp",
+   "type": "revolute",
+   "parent": "lh_thumb_metacarpals",
+   "child": "lh_thumb_proximal",
+   "xyz": [
+    0.0061722,
+    0.0,
+    0.047968
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.72,
+   "mimic": {
+    "joint": "lh_thumb_cmc_pitch",
+    "multiplier": 1.38,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_thumb_ip",
+   "type": "revolute",
+   "parent": "lh_thumb_proximal",
+   "child": "lh_thumb_distal",
+   "xyz": [
+    -0.00017064,
+    0.0,
+    0.038665
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.78,
+   "mimic": {
+    "joint": "lh_thumb_cmc_pitch",
+    "multiplier": 1.49,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_index_mcp_roll",
+   "type": "revolute",
+   "parent": "lh_hand_base_link",
+   "child": "lh_index_metacarpals",
+   "xyz": [
+    -0.0021643,
+    -0.026654,
+    0.13253
+   ],
+   "rpy": [
+    0.027927,
+    -0.0087198,
+    -0.00024358
+   ],
+   "axis": [
+    1.0,
+    0.0002437,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.19,
+   "mimic": null
+  },
+  {
+   "name": "lh_index_mcp_pitch",
+   "type": "revolute",
+   "parent": "lh_index_metacarpals",
+   "child": "lh_index_proximal",
+   "xyz": [
+    0.0022097,
+    0.0,
+    0.015275
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.00024367
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 1.36,
+   "mimic": null
+  },
+  {
+   "name": "lh_index_pip",
+   "type": "revolute",
+   "parent": "lh_index_proximal",
+   "child": "lh_index_middle",
+   "xyz": [
+    -0.0010697,
+    0.0,
+    0.035634
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 1.78,
+   "mimic": {
+    "joint": "lh_index_mcp_pitch",
+    "multiplier": 1.3,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_index_dip",
+   "type": "revolute",
+   "parent": "lh_index_middle",
+   "child": "lh_index_distal",
+   "xyz": [
+    -0.0052444,
+    0.0,
+    0.025711
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.62,
+   "mimic": {
+    "joint": "lh_index_mcp_pitch",
+    "multiplier": 0.46,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_middle_mcp_pitch",
+   "type": "revolute",
+   "parent": "lh_hand_base_link",
+   "child": "lh_middle_proximal",
+   "xyz": [
+    -0.0021316,
+    -0.0076542,
+    0.15281
+   ],
+   "rpy": [
+    0.0,
+    -0.0087266,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 1.36,
+   "mimic": null
+  },
+  {
+   "name": "lh_middle_pip",
+   "type": "revolute",
+   "parent": "lh_middle_proximal",
+   "child": "lh_middle_middle",
+   "xyz": [
+    -0.0010861,
+    0.0,
+    0.035634
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 1.78,
+   "mimic": {
+    "joint": "lh_middle_mcp_pitch",
+    "multiplier": 1.3,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_middle_dip",
+   "type": "revolute",
+   "parent": "lh_middle_middle",
+   "child": "lh_middle_distal",
+   "xyz": [
+    -0.0052857,
+    0.0,
+    0.025703
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.62,
+   "mimic": {
+    "joint": "lh_middle_mcp_pitch",
+    "multiplier": 0.46,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_ring_mcp_roll",
+   "type": "revolute",
+   "parent": "lh_hand_base_link",
+   "child": "lh_ring_metacarpals",
+   "xyz": [
+    -0.0021643,
+    0.011346,
+    0.13253
+   ],
+   "rpy": [
+    -0.024435,
+    -0.0087266,
+    0.0
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.2,
+   "mimic": null
+  },
+  {
+   "name": "lh_ring_mcp_pitch",
+   "type": "revolute",
+   "parent": "lh_ring_metacarpals",
+   "child": "lh_ring_proximal",
+   "xyz": [
+    0.0022097,
+    0.0,
+    0.015275
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 1.36,
+   "mimic": null
+  },
+  {
+   "name": "lh_ring_pip",
+   "type": "revolute",
+   "parent": "lh_ring_proximal",
+   "child": "lh_ring_middle",
+   "xyz": [
+    -0.0010697,
+    0.0,
+    0.035634
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 1.78,
+   "mimic": {
+    "joint": "lh_ring_mcp_pitch",
+    "multiplier": 1.3,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_ring_dip",
+   "type": "revolute",
+   "parent": "lh_ring_middle",
+   "child": "lh_ring_distal",
+   "xyz": [
+    -0.0052444,
+    0.0,
+    0.025711
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.62,
+   "mimic": {
+    "joint": "lh_ring_mcp_pitch",
+    "multiplier": 0.46,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_pinky_mcp_roll",
+   "type": "revolute",
+   "parent": "lh_hand_base_link",
+   "child": "lh_pinky_metacarpals",
+   "xyz": [
+    -0.00012074,
+    0.030346,
+    0.12755
+   ],
+   "rpy": [
+    -0.057596,
+    -0.0087266,
+    0.0
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.3,
+   "mimic": null
+  },
+  {
+   "name": "lh_pinky_mcp_pitch",
+   "type": "revolute",
+   "parent": "lh_pinky_metacarpals",
+   "child": "lh_pinky_proximal",
+   "xyz": [
+    0.0022097,
+    0.0,
+    0.015275
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 1.36,
+   "mimic": null
+  },
+  {
+   "name": "lh_pinky_pip",
+   "type": "revolute",
+   "parent": "lh_pinky_proximal",
+   "child": "lh_pinky_middle",
+   "xyz": [
+    -0.0010697,
+    0.0,
+    0.035634
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 1.78,
+   "mimic": {
+    "joint": "lh_pinky_mcp_pitch",
+    "multiplier": 1.3,
+    "offset": 0.0
+   }
+  },
+  {
+   "name": "lh_pinky_dip",
+   "type": "revolute",
+   "parent": "lh_pinky_middle",
+   "child": "lh_pinky_distal",
+   "xyz": [
+    -0.0052444,
+    0.0,
+    0.025711
+   ],
+   "rpy": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "lower": 0.0,
+   "upper": 0.62,
+   "mimic": {
+    "joint": "lh_pinky_mcp_pitch",
+    "multiplier": 0.46,
+    "offset": 0.0
+   }
+  }
+ ],
+ "meshes": [
+  {
+   "link": "lh_hand_base_link",
+   "vertexCount": 30366,
+   "indexCount": 182694,
+   "posOffset": 0,
+   "idxOffset": 182196,
+   "min": [
+    -0.032371,
+    -0.045678,
+    -7e-06
+   ],
+   "extent": [
+    0.064232,
+    0.092737,
+    0.165129
+   ]
+  },
+  {
+   "link": "lh_thumb_metacarpals_base1",
+   "vertexCount": 5949,
+   "indexCount": 35754,
+   "posOffset": 547584,
+   "idxOffset": 583280,
+   "min": [
+    0.017565,
+    -0.019989,
+    -0.019812
+   ],
+   "extent": [
+    0.022809,
+    0.040211,
+    0.040065
+   ]
+  },
+  {
+   "link": "lh_thumb_metacarpals_base2",
+   "vertexCount": 7385,
+   "indexCount": 44334,
+   "posOffset": 654788,
+   "idxOffset": 699100,
+   "min": [
+    -0.005862,
+    -0.021089,
+    -0.012836
+   ],
+   "extent": [
+    0.015017,
+    0.026954,
+    0.025554
+   ]
+  },
+  {
+   "link": "lh_thumb_metacarpals",
+   "vertexCount": 23606,
+   "indexCount": 143778,
+   "posOffset": 787768,
+   "idxOffset": 929404,
+   "min": [
+    -0.012966,
+    -0.012706,
+    -0.005612
+   ],
+   "extent": [
+    0.032952,
+    0.025413,
+    0.065633
+   ]
+  },
+  {
+   "link": "lh_thumb_proximal",
+   "vertexCount": 9990,
+   "indexCount": 60048,
+   "posOffset": 1216960,
+   "idxOffset": 1276900,
+   "min": [
+    -0.009366,
+    -0.011652,
+    -0.007904
+   ],
+   "extent": [
+    0.021772,
+    0.023304,
+    0.04926
+   ]
+  },
+  {
+   "link": "lh_thumb_distal",
+   "vertexCount": 7101,
+   "indexCount": 42654,
+   "posOffset": 1396996,
+   "idxOffset": 1439604,
+   "min": [
+    -0.012199,
+    -0.009364,
+    -0.003632
+   ],
+   "extent": [
+    0.024094,
+    0.018878,
+    0.030165
+   ]
+  },
+  {
+   "link": "lh_index_metacarpals",
+   "vertexCount": 5907,
+   "indexCount": 35538,
+   "posOffset": 1524912,
+   "idxOffset": 1560356,
+   "min": [
+    -0.013799,
+    -0.0061,
+    -0.004575
+   ],
+   "extent": [
+    0.027594,
+    0.012201,
+    0.032196
+   ]
+  },
+  {
+   "link": "lh_index_proximal",
+   "vertexCount": 7097,
+   "indexCount": 42750,
+   "posOffset": 1631432,
+   "idxOffset": 1674016,
+   "min": [
+    -0.01077,
+    -0.008397,
+    -0.005862
+   ],
+   "extent": [
+    0.018553,
+    0.016794,
+    0.047907
+   ]
+  },
+  {
+   "link": "lh_index_middle",
+   "vertexCount": 4520,
+   "indexCount": 27168,
+   "posOffset": 1759516,
+   "idxOffset": 1786636,
+   "min": [
+    -0.011163,
+    -0.007993,
+    -0.006718
+   ],
+   "extent": [
+    0.019587,
+    0.015986,
+    0.036899
+   ]
+  },
+  {
+   "link": "lh_index_distal",
+   "vertexCount": 7597,
+   "indexCount": 45654,
+   "posOffset": 1840972,
+   "idxOffset": 1886556,
+   "min": [
+    -0.008806,
+    -0.007866,
+    -0.003256
+   ],
+   "extent": [
+    0.018223,
+    0.015732,
+    0.029524
+   ]
+  },
+  {
+   "link": "lh_middle_proximal",
+   "vertexCount": 7097,
+   "indexCount": 42750,
+   "posOffset": 1977864,
+   "idxOffset": 2020448,
+   "min": [
+    -0.010775,
+    -0.008397,
+    -0.005862
+   ],
+   "extent": [
+    0.01855,
+    0.016794,
+    0.047907
+   ]
+  },
+  {
+   "link": "lh_middle_middle",
+   "vertexCount": 4520,
+   "indexCount": 27168,
+   "posOffset": 2105948,
+   "idxOffset": 2133068,
+   "min": [
+    -0.011204,
+    -0.007993,
+    -0.006717
+   ],
+   "extent": [
+    0.019619,
+    0.015986,
+    0.036887
+   ]
+  },
+  {
+   "link": "lh_middle_distal",
+   "vertexCount": 7596,
+   "indexCount": 45654,
+   "posOffset": 2187404,
+   "idxOffset": 2232980,
+   "min": [
+    -0.00884,
+    -0.007866,
+    -0.003256
+   ],
+   "extent": [
+    0.018247,
+    0.015732,
+    0.029516
+   ]
+  },
+  {
+   "link": "lh_ring_metacarpals",
+   "vertexCount": 5907,
+   "indexCount": 35538,
+   "posOffset": 2324288,
+   "idxOffset": 2359732,
+   "min": [
+    -0.013798,
+    -0.0061,
+    -0.004575
+   ],
+   "extent": [
+    0.027593,
+    0.0122,
+    0.032196
+   ]
+  },
+  {
+   "link": "lh_ring_proximal",
+   "vertexCount": 7097,
+   "indexCount": 42750,
+   "posOffset": 2430808,
+   "idxOffset": 2473392,
+   "min": [
+    -0.01077,
+    -0.008397,
+    -0.005862
+   ],
+   "extent": [
+    0.018553,
+    0.016794,
+    0.047907
+   ]
+  },
+  {
+   "link": "lh_ring_middle",
+   "vertexCount": 4520,
+   "indexCount": 27168,
+   "posOffset": 2558892,
+   "idxOffset": 2586012,
+   "min": [
+    -0.011163,
+    -0.007993,
+    -0.006718
+   ],
+   "extent": [
+    0.019587,
+    0.015986,
+    0.036899
+   ]
+  },
+  {
+   "link": "lh_ring_distal",
+   "vertexCount": 7597,
+   "indexCount": 45654,
+   "posOffset": 2640348,
+   "idxOffset": 2685932,
+   "min": [
+    -0.008806,
+    -0.007866,
+    -0.003256
+   ],
+   "extent": [
+    0.018223,
+    0.015732,
+    0.029524
+   ]
+  },
+  {
+   "link": "lh_pinky_metacarpals",
+   "vertexCount": 5907,
+   "indexCount": 35538,
+   "posOffset": 2777240,
+   "idxOffset": 2812684,
+   "min": [
+    -0.013798,
+    -0.0061,
+    -0.004575
+   ],
+   "extent": [
+    0.027593,
+    0.0122,
+    0.032196
+   ]
+  },
+  {
+   "link": "lh_pinky_proximal",
+   "vertexCount": 7097,
+   "indexCount": 42750,
+   "posOffset": 2883760,
+   "idxOffset": 2926344,
+   "min": [
+    -0.01077,
+    -0.008397,
+    -0.005862
+   ],
+   "extent": [
+    0.018553,
+    0.016794,
+    0.047907
+   ]
+  },
+  {
+   "link": "lh_pinky_middle",
+   "vertexCount": 4520,
+   "indexCount": 27168,
+   "posOffset": 3011844,
+   "idxOffset": 3038964,
+   "min": [
+    -0.011163,
+    -0.007993,
+    -0.006718
+   ],
+   "extent": [
+    0.019587,
+    0.015986,
+    0.036899
+   ]
+  },
+  {
+   "link": "lh_pinky_distal",
+   "vertexCount": 7597,
+   "indexCount": 45654,
+   "posOffset": 3093300,
+   "idxOffset": 3138884,
+   "min": [
+    -0.008806,
+    -0.007866,
+    -0.003256
+   ],
+   "extent": [
+    0.018223,
+    0.015732,
+    0.029524
+   ]
+  }
+ ],
+ "bin": "l20lite_left.bin",
+ "byteLength": 3230192
+}
