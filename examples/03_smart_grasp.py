@@ -6,10 +6,10 @@
 和附件做法的区别：附件先一次性发送最终角度、再看力，力只能用来“报告”；
 这里是边闭合边读力，达到目标力时立即停下，力才真正起到控制作用。
 
-    python 03_smart_grasp.py
-    python 03_smart_grasp.py --side right --interface pcan --channel PCAN_USBBUS1
+    python examples/03_smart_grasp.py
+    python examples/03_smart_grasp.py --side right --interface pcan --channel PCAN_USBBUS1
 
-抓取参数（姿态、目标力、监控手指）在 l10_config.OBJECTS 中修改。
+抓取参数（姿态、目标力、监控手指）见 config.OBJECTS，在 l10_settings.toml 的 [OBJECTS.xxx] 里覆盖。
 """
 
 from __future__ import annotations
@@ -19,8 +19,8 @@ import time
 
 from linkerbot_hand import HandError
 
-import l10_config as cfg
-from l10_hand import (
+from l10ctl import config as cfg
+from l10ctl.hand import (
     L10Hand,
     add_connection_args,
     check_pose,

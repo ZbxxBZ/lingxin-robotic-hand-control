@@ -1,16 +1,17 @@
 """网页控制台：直接用 linkerbot-hand SDK 控制 L10，在浏览器里实时查看状态。
 
-    python 06_web_dashboard.py                # 自动打开 http://127.0.0.1:8765
-    python 06_web_dashboard.py --no-browser   # 不自动打开浏览器
-    python 06_web_dashboard.py --side left --interface pcan --channel PCAN_USBBUS1
+    l10-dashboard                # 自动打开 http://127.0.0.1:8765（等同 python -m l10ctl）
+    l10-dashboard --no-browser   # 不自动打开浏览器
+    l10-dashboard --side left --interface pcan --channel PCAN_USBBUS1
+    l10-dashboard --self-test    # 只检查程序文件是否完整（不连手、不开摄像头）
 
 页面功能：
   - 10 个关节滑块（显示目标值和实测值）、全局速度
   - 从官方控制台 l10-dashboard_2025.08.06 迁移来的预设动作、数字手势和 10 个动画
-  - l10_config.POSES 里的官方 GUI 预设
+  - config.POSES 里的官方 GUI 预设
   - 实时可视化：手部示意图、五指 12×6 触觉热力图、指尖力条和曲线、电机温度、故障、日志
   - “停止并保持”（Esc）：停止动画 / 镜像跟随 / 猜拳，并把目标设为当前实测角度
-  - 摄像头镜像：L10 实时模仿你的手；石头剪刀布（与 07_camera_mirror.py 同一套识别、标定和保护）
+  - 摄像头镜像：L10 实时模仿你的手；石头剪刀布（与 l10-mirror 同一套识别、标定和保护）
   - 握手（v2）：每根手指按自己的指尖力合拢到合适的松紧，你抽手时按触觉自动松开
 
 注意：
@@ -31,13 +32,13 @@ import webbrowser
 from collections import deque
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 
 from linkerbot_hand import HandError
 
-import l10_actions as actions
-import l10_config as cfg
-from l10_hand import (
+from . import actions
+from . import config as cfg
+from . import paths
+from .hand import (
     ArrivalCheck,
     L10Hand,
     add_connection_args,
@@ -48,11 +49,11 @@ from l10_hand import (
     plan_transition,
     relieve_stall,
 )
-from l10_camera import MODEL_PATH, CameraService
-from l10_handshake import HandshakeController, ready_pose
-from l10_mirror import CALIBRATIONS, PHASE_TEXT, PINCH_LABELS, MirrorGuard, RpsGame
+from .camera import MODEL_PATH, CameraService
+from .handshake import HandshakeController, ready_pose
+from .mirror import CALIBRATIONS, PHASE_TEXT, PINCH_LABELS, MirrorGuard, RpsGame
 
-WEB_DIR = Path(__file__).resolve().parent / "web"
+WEB_DIR = paths.WEB_DIR
 STATIC_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/index.html": ("index.html", "text/html; charset=utf-8"),
@@ -503,7 +504,7 @@ class HandService:
             self.camera.reset_calibration()
         elif kind == "deadband":
             value = self.camera.set_deadband(float(data["value"]))
-            self._log("info", f"防抖回差设为 {value:g}（写进 l10_config.MIRROR_DEADBAND 才会保存）")
+            self._log("info", f"防抖回差设为 {value:g}（写进 l10_settings.toml 的 MIRROR_DEADBAND 才会保存）")
         elif kind == "game":
             action = str(data["action"])
             if action == "enter":
@@ -551,7 +552,7 @@ class HandService:
                     raise ValueError("请先进入握手")
                 if "grip_force" in data:
                     value = self.handshake.set_grip_force(float(data["grip_force"]))
-                    self._log("info", f"握力设为 {value:g}（写进 l10_config.HANDSHAKE_GRIP_FORCE 才会保存）")
+                    self._log("info", f"握力设为 {value:g}（写进 l10_settings.toml 的 HANDSHAKE_GRIP_FORCE 才会保存）")
                 if "auto_start" in data:
                     self.handshake.auto_start = bool(data["auto_start"])
                 if "auto_release" in data:
@@ -783,20 +784,25 @@ def make_handler(service: HandService, port: int) -> type[BaseHTTPRequestHandler
 
 
 # ---------------------------------------------------------------- 入口
-FROZEN = getattr(sys, "frozen", False)  # 是否是打包后的 exe
+FROZEN = paths.FROZEN  # 是否是打包后的 exe
 
 
 def self_test() -> int:
     """检查程序文件是否完整（网页、3D 模型、手部识别模型、PCAN 接口）。不连接手，不开摄像头。"""
     import numpy as np
 
-    from l10_mirror import HandTracker
+    from .mirror import HandTracker
 
+    print(f"  数据目录：{paths.data_dir()}")
+    print(f"  设置文件：{cfg.SETTINGS_FILE or '没有（全部用默认值）'}")
+    print(f"  连接：{cfg.SIDE} 手，{cfg.INTERFACE} {cfg.CHANNEL}")
     problems = []
     for name, _ctype in {**STATIC_FILES, **MODEL_FILES}.values():
         if not (WEB_DIR / name).is_file():
             problems.append(f"缺少网页文件 {name}")
     try:
+        if not MODEL_PATH.is_file():
+            raise FileNotFoundError(f"{MODEL_PATH} 不存在，先运行 l10-mirror --download-model")
         tracker = HandTracker(MODEL_PATH)
         tracker.detect(np.zeros((480, 640, 3), np.uint8), 0)
         tracker.close()
@@ -823,7 +829,7 @@ def self_test() -> int:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="L10 网页控制台（基于 linkerbot-hand SDK）")
+    parser = argparse.ArgumentParser(prog="l10-dashboard", description="L10 网页控制台（基于 linkerbot-hand SDK）")
     add_connection_args(parser)
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--no-browser", action="store_true", help="不自动打开浏览器")

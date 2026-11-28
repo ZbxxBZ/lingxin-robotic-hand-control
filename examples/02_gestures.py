@@ -1,9 +1,9 @@
 """第 2 步：基本动作。从菜单选择预设手势（张开、握拳、点赞、OK、数字……）。
 
-    python 02_gestures.py
-    python 02_gestures.py --side right
+    python examples/02_gestures.py
+    python examples/02_gestures.py --side right
 
-姿态定义在 l10_config.POSES，可用 04_joint_jog.py 调好后替换。
+姿态定义在 config.POSES，可用 04_joint_jog.py 调好后写进 l10_settings.toml 的 [POSES]。
 """
 
 from __future__ import annotations
@@ -11,8 +11,8 @@ from __future__ import annotations
 import argparse
 import time
 
-import l10_config as cfg
-from l10_hand import L10Hand, add_connection_args, format_pose
+from l10ctl import config as cfg
+from l10ctl.hand import L10Hand, add_connection_args, format_pose
 
 
 def print_menu(keys: list[str]) -> None:

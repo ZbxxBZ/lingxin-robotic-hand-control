@@ -25,8 +25,8 @@ from typing import Protocol
 
 import numpy as np
 
-import l10_config as cfg
-from l10_hand import FINGER_FLEX_JOINT, FINGER_JOINTS, THUMB_JOINTS
+from . import config as cfg
+from .hand import FINGER_FLEX_JOINT, FINGER_JOINTS, THUMB_JOINTS
 
 Pose = tuple[int, ...]
 
@@ -155,7 +155,7 @@ def _angle(u: np.ndarray, v: np.ndarray) -> float:
 
 
 def hand_features(points: np.ndarray) -> dict[str, float]:
-    """21 个 3D 关键点 → 特征字典（含义见 l10_config.MIRROR_JOINT_MAP 上方的说明）。
+    """21 个 3D 关键点 → 特征字典（含义见 config.MIRROR_JOINT_MAP 上方的说明）。
 
     只用夹角、距离和由关键点自身定义的方向，与左右手、画面是否镜像无关。
     """
@@ -380,6 +380,7 @@ def load_calibration(path: Path) -> dict | None:
 
 
 def save_calibration(path: Path, mapper: MirrorMapper) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(mapper.to_json(), ensure_ascii=False, indent=2), encoding="utf-8")
 
 

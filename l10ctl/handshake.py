@@ -25,7 +25,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Protocol
 
-import l10_config as cfg
+from . import config as cfg
 
 Pose = tuple[int, ...]
 

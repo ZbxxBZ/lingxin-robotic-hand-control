@@ -2,9 +2,9 @@
 
 本脚本不发送任何运动指令，手不会动。
 
-    python 01_check_connection.py                  # 一次性检查
-    python 01_check_connection.py --watch-force    # 持续打印指尖力，用手指按压指尖来标定阈值
-    python 01_check_connection.py --side right --interface socketcan --channel can0
+    python examples/01_check_connection.py                  # 一次性检查
+    python examples/01_check_connection.py --watch-force    # 持续打印指尖力，用手指按压指尖来标定阈值
+    python examples/01_check_connection.py --side right --interface socketcan --channel can0
 """
 
 from __future__ import annotations
@@ -14,8 +14,8 @@ import time
 
 from linkerbot_hand import HandError
 
-import l10_config as cfg
-from l10_hand import L10Hand, add_connection_args, format_forces, format_pose
+from l10ctl import config as cfg
+from l10ctl.hand import L10Hand, add_connection_args, format_forces, format_pose, format_toml_pose
 
 
 def print_state(hand: L10Hand) -> None:
@@ -26,7 +26,7 @@ def print_state(hand: L10Hand) -> None:
     print("\n当前角度（原始值 0~255，弯曲关节 0=弯曲 255=伸直）：")
     for i, (label, value) in enumerate(zip(cfg.JOINT_LABELS, pose), start=1):
         print(f"  {i:>2}. {label:<10} {value:>3}")
-    print(f"  可复制到 l10_config.py：{format_pose(pose)}")
+    print(f"  {format_pose(pose)}；写进 l10_settings.toml 的写法：{format_toml_pose(pose)}")
 
     try:
         temps = hand.temperatures()
@@ -47,7 +47,7 @@ def print_state(hand: L10Hand) -> None:
     try:
         chosen = hand.detect_force_source()
         print(f"程序将使用：{chosen}（FORCE_SOURCE={cfg.FORCE_SOURCE!r}）")
-        print("  若按压指尖时该来源的数值不变、另一种在变，请在 l10_config.py 中改 FORCE_SOURCE")
+        print("  若按压指尖时该来源的数值不变、另一种在变，请在 l10_settings.toml 里写 FORCE_SOURCE = \"...\"")
     except RuntimeError as error:
         print(f"没有可用的指尖力数据：{error}")
 

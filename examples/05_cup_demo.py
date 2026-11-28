@@ -13,12 +13,12 @@
   Q 或关闭窗口                  → 松手并退出
 
 流程和 03_smart_grasp.py 一样：预成形 → 弯曲关节逐步闭合，每步读力，
-达到目标力就停在当前位置。参数在 l10_config.py 的 OBJECTS["cup"] 和
-“拿杯子演示”一节。
+达到目标力就停在当前位置。参数见 config.py 的 OBJECTS["cup"] 和
+“拿杯子演示”一节，在 l10_settings.toml 里覆盖（例如 [OBJECTS.cup]）。
 
-运行前需要：pip install matplotlib
-    python 05_cup_demo.py
-    python 05_cup_demo.py --log cup_run.csv    # 同时记录力值，便于调阈值
+运行前需要：pip install -e ".[plot]"（matplotlib）
+    python examples/05_cup_demo.py
+    python examples/05_cup_demo.py --log cup_run.csv    # 同时记录力值，便于调阈值
 """
 
 from __future__ import annotations
@@ -35,8 +35,8 @@ import numpy as np
 from linkerbot_hand import HandError
 from matplotlib.animation import FuncAnimation
 
-import l10_config as cfg
-from l10_hand import (
+from l10ctl import config as cfg
+from l10ctl.hand import (
     L10Hand,
     add_connection_args,
     check_pose,

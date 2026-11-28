@@ -1,7 +1,7 @@
 "use strict";
 
 // L10 网页控制台前端：读取 /api/catalog 建界面，每 100 ms 轮询 /api/state 刷新，
-// 操作通过 POST /api/command 发给 06_web_dashboard.py。不依赖任何外部库。
+// 操作通过 POST /api/command 发给 l10ctl/dashboard.py（l10-dashboard）。不依赖任何外部库。
 
 const $ = (id) => document.getElementById(id);
 const FINGERS = ["thumb", "index", "middle", "ring", "pinky"];
@@ -156,11 +156,11 @@ function buildPresets() {
   const groups = new Map();
   for (const p of catalog.presets) {
     if (!groups.has(p.group)) groups.set(p.group, []);
-    const title = (p.custom ? "已按真机调整（l10_actions.USER_OVERRIDES）\n" : "") + describePreset(p);
+    const title = (p.custom ? "已按真机调整（USER_OVERRIDES，可在 l10_settings.toml 里改）\n" : "") + describePreset(p);
     groups.get(p.group).push({ key: p.key, label: p.label, title });
   }
   groups.set(
-    "官方 GUI 预设（齿轮版 L10，来自 l10_config.POSES）",
+    "官方 GUI 预设（齿轮版 L10，来自 config.POSES）",
     catalog.gui_poses.map((g) => ({ key: g.key, label: g.label, title: `[${g.pose.join(", ")}]` })),
   );
   for (const [name, items] of groups) {
@@ -1070,7 +1070,7 @@ function updateStatus(s, reachable) {
   if (!reachable) {
     pill.className = "pill pill-err";
     pill.textContent = "网页服务未响应";
-    pill.title = "请确认 06_web_dashboard.py 仍在运行";
+    pill.title = "请确认 l10-dashboard 仍在运行";
     return;
   }
   if (s.connected) {
@@ -1177,7 +1177,7 @@ function buildCamera() {
     command("game", { action: "start" });
   });
   if (!catalog.mirror_model) {
-    $("cam-placeholder").textContent = "缺少手部模型：先运行 python 07_camera_mirror.py --download-model";
+    $("cam-placeholder").textContent = "缺少手部模型：先运行 l10-mirror --download-model";
   }
 }
 

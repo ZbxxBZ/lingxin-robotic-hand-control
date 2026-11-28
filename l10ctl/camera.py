@@ -1,4 +1,4 @@
-"""摄像头 + 手部识别的公共部分：07_camera_mirror.py 和 06 网页控制台共用。本模块不访问真机。
+"""摄像头 + 手部识别的公共部分：网页控制台和 l10-mirror（mirror_app.py）共用。本模块不访问真机。
 
 - download_model / open_camera / draw_skeleton：模型下载、打开摄像头、画手部骨架
 - CameraService：后台线程不停地取最新一帧 → 识别 → 换算成 L10 关节值（含滤波、标定、手势），
@@ -18,8 +18,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-import l10_config as cfg
-from l10_mirror import (
+from . import config as cfg
+from . import paths
+from .mirror import (
     CALIBRATIONS,
     FEATURE_LABELS,
     PINCH_LABELS,
@@ -35,11 +36,12 @@ from l10_mirror import (
     save_calibration,
 )
 
-PROJECT = Path(__file__).resolve().parent
-# 打包成 exe 后，程序文件解压在临时目录里（每次退出都会删掉）；标定这类要保存的文件放在 exe 旁边
-DATA_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else PROJECT
-MODEL_PATH = PROJECT / cfg.MIRROR_MODEL_PATH  # 打包时一起放进 exe
-CALIBRATION_PATH = DATA_DIR / cfg.MIRROR_CALIBRATION_FILE
+# 手部识别模型和标定都放在数据目录（见 paths.py）；打包的 exe 里自带一份模型，
+# exe 旁边没有放模型时就用自带的
+MODEL_PATH = paths.data_file(cfg.MIRROR_MODEL_PATH)
+if paths.FROZEN and not MODEL_PATH.is_file():
+    MODEL_PATH = paths.BUNDLED_DIR / MODEL_PATH.name
+CALIBRATION_PATH = paths.data_file(cfg.MIRROR_CALIBRATION_FILE)
 HAND_CONNECTIONS = (
     (0, 1), (1, 2), (2, 3), (3, 4),
     (0, 5), (5, 6), (6, 7), (7, 8),
@@ -216,7 +218,7 @@ class CameraService:
         tracker = cap = None
         try:
             if not MODEL_PATH.exists():
-                raise RuntimeError(f"缺少手部模型 {MODEL_PATH}，先运行 python 07_camera_mirror.py --download-model")
+                raise RuntimeError(f"缺少手部模型 {MODEL_PATH}，先运行 l10-mirror --download-model")
             tracker = HandTracker(MODEL_PATH)
             cap = open_camera(self._index)
             with self._lock:

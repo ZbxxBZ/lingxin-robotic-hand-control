@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "l10ctl"
+dynamic = ["version"]
+description = "灵心巧手 L10 灵巧手控制：预设动作、力反馈抓取、网页控制台、摄像头镜像、握手"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  # 官方 SDK 不在 PyPI 上，先按 README 从 GitHub 装好这两个包
+  "linkerbot-hand>=2.0",
+  "linkerbot-transport",
+  "python-can>=4.3",
+  "numpy>=1.26",
+  # 镜像跟随 / 游戏（网页控制台启动时就会加载摄像头模块）
+  "mediapipe>=0.10.14",
+  "opencv-contrib-python>=4.9",
+  "pillow>=10",
+  "tomli>=2; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.8"]  # examples/05_cup_demo.py
+build = ["pyinstaller>=6"]  # 打包 exe
+test = ["pytest>=7"]
+
+[project.scripts]
+l10-dashboard = "l10ctl.dashboard:main"
+l10-mirror = "l10ctl.mirror_app:main"
+
+[project.urls]
+Repository = "https://github.com/ZbxxBZ/lingxin-robotic-hand-control"
+
+[tool.setuptools.packages.find]
+include = ["l10ctl*"]
+exclude = ["l10ctl.bundled*"]  # 只在打包的 exe 里有
+
+[tool.setuptools.dynamic]
+version = { attr = "l10ctl.__version__" }
+
+[tool.setuptools.package-data]
+"l10ctl.web" = ["*.html", "*.js", "*.css"]
+"l10ctl.web.model" = ["*.json", "*.bin"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]

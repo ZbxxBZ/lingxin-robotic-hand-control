@@ -7,20 +7,22 @@
 官方换算约定（linear-fit-v0）：SDK 百分比 100 = 关节下限，0 = 上限，中间线性。
 换成原始值 0~255 就是：角度 = 上限 + (下限 - 上限) × raw / 255。
 
-输出到 web/model/：
+输出到 l10ctl/web/model/：
   l20lite_{side}.json  关节树、通道对应、各网格在 .bin 里的位置和包围盒
   l20lite_{side}.bin   各网格的顶点（uint16 量化坐标）和三角形索引（uint16）
 
-    python tools/convert_l10_model.py
-    python tools/convert_l10_model.py --assets D:/project/linkerbot_sdk/linker-sim-assets/hands/l20lite
+    git clone https://github.com/linker-bot/linker-sim-assets.git
+    python tools/convert_l10_model.py --assets linker-sim-assets/hands/l20lite
 
-只做离线数据转换，不连接真机。需要 numpy（l10_hand 环境里已有）。
+也可以用环境变量 L10_SIM_ASSETS 指定 hands/l20lite 目录，就不用每次写 --assets。
+只做离线数据转换，不连接真机。需要 numpy。仓库里已经带了转换好的文件，官方模型更新后才需要重新转换。
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import pathlib
 import re
 import subprocess
@@ -28,8 +30,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-DEFAULT_ASSETS = pathlib.Path("D:/project/linkerbot_sdk/linker-sim-assets/hands/l20lite")
-OUT_DIR = pathlib.Path(__file__).resolve().parent.parent / "web" / "model"
+OUT_DIR = pathlib.Path(__file__).resolve().parent.parent / "l10ctl" / "web" / "model"
 
 
 def floats(text: str | None, count: int, default: float = 0.0) -> list[float]:
@@ -179,8 +180,17 @@ def convert(assets: pathlib.Path, side: str) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="转换 L10（L20Lite）官方模型给网页控制台用")
-    parser.add_argument("--assets", type=pathlib.Path, default=DEFAULT_ASSETS)
+    default = os.environ.get("L10_SIM_ASSETS")
+    parser.add_argument(
+        "--assets",
+        type=pathlib.Path,
+        default=pathlib.Path(default) if default else None,
+        required=default is None,
+        help="linker-sim-assets 仓库里的 hands/l20lite 目录（或设环境变量 L10_SIM_ASSETS）",
+    )
     args = parser.parse_args()
+    if not (args.assets / "l20lite_left.urdf").is_file():
+        parser.error(f"{args.assets} 里没有 l20lite_left.urdf，应指向 linker-sim-assets/hands/l20lite")
     for side in ("left", "right"):
         convert(args.assets, side)
 

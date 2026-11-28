@@ -9,11 +9,16 @@ SDK 用出厂产品码 LHT10 校验身份，10 个关节和 CAN 帧（0x01+0x04 
 - 侧摆 / 拇指翻滚 / 拇指旋转：0 和 255 是两个行程端点，方向以真机为准
 
 注意：下面的姿态和力阈值是起始值，第一次用之前请用
-01_check_connection.py 和 04_joint_jog.py 在真机上核对、标定。
+examples/01_check_connection.py 和 examples/04_joint_jog.py 在真机上核对、标定。
+
+不要直接改这个文件：把要改的项写进 l10_settings.toml（格式和查找位置见 settings.py，
+示例见仓库里的 l10_settings.example.toml）。文件末尾会用它覆盖这里的默认值。
 """
 
+from . import __version__
+
 # ---------------------------------------------------------------- 版本
-APP_VERSION = "2.0"  # 网页控制台 / 打包的 exe 显示的版本号（v2：加了握手）
+APP_VERSION = __version__  # 网页控制台 / 打包的 exe 显示的版本号（在 l10ctl/__init__.py 里改）
 
 # ---------------------------------------------------------------- 连接
 SDK_MODEL = "L20Lite"  # 新 SDK 中 L10 的型号名，不要改
@@ -119,7 +124,7 @@ ARRIVE_STILL_S = 0.5
 # 如果你的 L10 是早期（非齿轮拇指）版本，官方 example/L10 用的是另一组值，例如：
 #   张开     (255, 70, 255, 255, 255, 255, 255, 255, 255, 255)
 #   拇指对食指 (135, 128, 146, 255, 255, 255, 255, 255, 255, 80)
-# 两组值差别主要在拇指翻滚/旋转和侧摆，请用 04_joint_jog.py 确认后替换。
+# 两组值差别主要在拇指翻滚/旋转和侧摆，请用 examples/04_joint_jog.py 确认后替换。
 POSES = {
     "open": (255, 255, 255, 255, 255, 255, 128, 67, 89, 255),
     "fist": (90, 0, 0, 0, 0, 0, 128, 67, 89, 197),
@@ -150,7 +155,7 @@ DEMO_SEQUENCE = ("open", "fist", "open", "thumbs_up", "open", "ok", "open")
 #         再把弯曲关节从伸直逐步插值到 target，每一步读一次指尖力，
 #         达到 target_force 就停在当前位置。
 # target_force：monitor_fingers 中已接触手指（力 > 0）的平均力（原始计数，
-#         标度未经厂商标定），用 `01_check_connection.py --watch-force`
+#         标度未经厂商标定），用 `examples/01_check_connection.py --watch-force`
 #         按压指尖观察数值后再定。
 OBJECTS = {
     "glass_probe": {
@@ -208,10 +213,10 @@ FORCE_HARD_LIMIT = 150
 #             "fns"    只用每指法向汇总值（0x20）
 #             "fn_max" 只用 12×6 触觉点阵中每指的最大值
 # 这只左手会应答 0xB1~0xB5（五指触觉点阵）查询，是点阵式压感版本，所以直接用 fn_max。
-# 01_check_connection.py 仍会把两种来源各读一次，便于核对。
+# examples/01_check_connection.py 仍会把两种来源各读一次，便于核对。
 FORCE_SOURCE = "fn_max"
 
-# ---------------------------------------------------------------- 拿杯子演示（05_cup_demo.py）
+# ---------------------------------------------------------------- 拿杯子演示（examples/05_cup_demo.py）
 # 力值都是“去皮后”的值：启动时手张开、指尖不接触任何东西，程序会记下各指读数作为零点。
 DEMO_OBJECT = "cup"  # 用 OBJECTS 里的哪一项（姿态、目标力、监控手指都从那里读）
 
@@ -231,12 +236,13 @@ DEMO_DISPLAY_MAX = 100  # 力条、曲线和热力图的满刻度
 DEMO_HISTORY_S = 10  # 曲线显示最近多少秒
 DEMO_TARE_SAMPLES = 20  # 去皮时取多少次读数求平均
 
-# ---------------------------------------------------------------- 摄像头镜像（07_camera_mirror.py）
-# 普通 USB 摄像头 + MediaPipe 手部关键点模型。模型第一次用前下载一次：
-#   python 07_camera_mirror.py --download-model
+# ---------------------------------------------------------------- 摄像头镜像（网页“镜像跟随”页 / l10-mirror）
+# 普通 USB 摄像头 + MediaPipe 手部关键点模型。模型第一次用前下载一次（放到数据目录，见 paths.py）：
+#   l10-mirror --download-model
 MIRROR_CAMERA_INDEX = 0  # 摄像头编号；笔记本自带摄像头一般是 0，外接 USB 摄像头常是 1
 MIRROR_CAMERA_SIZE = (640, 480)
-MIRROR_MODEL_PATH = "models/hand_landmarker.task"  # 相对项目目录
+MIRROR_FONT = ""  # l10-mirror 窗口的中文字体文件；空 = 自动找系统自带的（Windows / macOS / 常见 Linux 字体）
+MIRROR_MODEL_PATH = "hand_landmarker.task"  # 相对路径放在数据目录里；也可以写绝对路径
 MIRROR_MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/hand_landmarker/"
     "hand_landmarker/float16/latest/hand_landmarker.task"
@@ -299,7 +305,7 @@ MIRROR_FEATURE_DEFAULTS = {
     "ring_spread": (0.0, 15.0),
     "pinky_spread": (0.0, 20.0),
 }
-MIRROR_CALIBRATION_FILE = "mirror_calibration.json"  # 相对项目目录
+MIRROR_CALIBRATION_FILE = "mirror_calibration.json"  # 相对路径放在数据目录里；也可以写绝对路径
 MIRROR_CALIBRATION_S = 1.0  # 标定时取多长时间的平均
 MIRROR_ABDUCTION = True  # False：三个侧摆固定在 POSES["open"] 的中位，不跟随
 # 手指越弯，侧摆越回到中位（弯着的手指左右摆容易互相蹭，人手识别也不准）
@@ -363,7 +369,7 @@ MIRROR_FORCE_LIMIT = 50
 MIRROR_FORCE_STEP = 5
 MIRROR_FORCE_MAX = 60
 
-# ---------------------------------------------------------------- 石头剪刀布（07_camera_mirror.py 按 G）
+# ---------------------------------------------------------------- 石头剪刀布（网页“游戏”页 / l10-mirror 按 G）
 # 四指弯曲程度（0 = 标定的张开，1 = 标定的握拳）低于 EXTENDED 算伸直，高于 BENT 算弯曲
 GESTURE_EXTENDED = 0.4
 GESTURE_BENT = 0.6
@@ -437,3 +443,23 @@ HANDSHAKE_THUMB_RATE_RATIO = 0.6
 HANDSHAKE_THUMB_LEAD = 12
 HANDSHAKE_THUMB_BLOCK_MARGIN = 6
 HANDSHAKE_THUMB_RELEASE_ADVANCE = 4
+
+# ---------------------------------------------------------------- 真机调整（网页控制台的预设动作）
+# 在真机上调好的完整 10 关节姿态，覆盖 actions.py 里同名的官方控制台预设，数字动画也用这些值。
+# 顺序：拇指弯曲、拇指翻滚、食指、中指、无名指、小指、食指侧摆、无名指侧摆、小指侧摆、拇指旋转
+USER_OVERRIDES = {
+    # 2026-11-26 按网页控制台截图调整；控制台原值为手指 PINCH + 掌部 PALM_PINCH
+    "pinch": (136, 106, 121, 0, 0, 0, 255, 163, 255, 220),
+    # 2026-11-26 按截图调整（第二次：中指/无名指/小指改为 0）；
+    # 控制台原值为 EIGHT + PALM_EIGHT（拇指翻滚 240、中/无名/小指 36/41/46、拇指旋转 76）
+    "num8": (216, 255, 255, 0, 0, 0, 106, 200, 199, 255),
+    # 2026-11-26 按截图调整；控制台原值为 SEVEN + PALM_SEVEN（拇指弯曲 120、拇指旋转 76）
+    "num7": (159, 137, 130, 109, 0, 0, 255, 200, 199, 152),
+}
+
+# ---------------------------------------------------------------- 用户设置（必须放在最后）
+# 用 l10_settings.toml 覆盖上面的默认值。注意：上面由别的值算出来的项（例如 GAME_POSES 里的
+# 石头 = POSES["fist"]）是用默认值算的，要改就在设置文件里直接写它。
+from .settings import apply_overrides as _apply_overrides  # noqa: E402
+
+SETTINGS_FILE, SETTINGS_CHANGED = _apply_overrides(globals())

@@ -7,13 +7,13 @@
   - 按力卸载：指尖力超过 MIRROR_FORCE_LIMIT，那根手指往伸直方向退
 没看到手时，L10 保持当前姿态，不会乱动。
 
-第一次使用：
-    python 07_camera_mirror.py --download-model   # 下载 MediaPipe 手部模型（约 7.5 MB，只需一次）
-    python 07_camera_mirror.py --no-hand          # 先不连手：只看识别效果和映射出的关节值
+第一次使用（l10-mirror 等同于 python -m l10ctl.mirror_app）：
+    l10-mirror --download-model   # 下载 MediaPipe 手部模型到数据目录（约 7.5 MB，只需一次）
+    l10-mirror --no-hand          # 先不连手：只看识别效果和映射出的关节值
       在窗口里标定（每个姿势保持 1 秒）：张开五指按 O，握拳按 F，拇指尖碰小指根按 T
 然后连上手：
-    python 07_camera_mirror.py                    # 启动后先暂停，按空格开始跟随
-    python 07_camera_mirror.py --game             # 直接进入石头剪刀布
+    l10-mirror                    # 启动后先暂停，按空格开始跟随
+    l10-mirror --game             # 直接进入石头剪刀布
 
 窗口按键（先用鼠标点一下窗口）：
   空格    开始 / 暂停跟随；猜拳模式下开始一局
@@ -23,12 +23,13 @@
   R       暂停跟随并张开手
   Q / Esc 退出（手会先张开）
 
-参数在 l10_config.py 的“摄像头镜像”和“石头剪刀布”两节。
+参数见 config.py 的“摄像头镜像”和“石头剪刀布”两节，在 l10_settings.toml 里覆盖。
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import threading
 import time
@@ -40,8 +41,8 @@ import numpy as np
 from linkerbot_hand import HandError
 from PIL import Image, ImageDraw, ImageFont
 
-import l10_config as cfg
-from l10_hand import (
+from . import config as cfg
+from .hand import (
     ArrivalCheck,
     L10Hand,
     add_connection_args,
@@ -51,8 +52,8 @@ from l10_hand import (
     plan_transition,
     relieve_stall,
 )
-from l10_camera import MODEL_PATH, download_model, draw_skeleton, open_camera
-from l10_mirror import (
+from .camera import CALIBRATION_PATH, MODEL_PATH, download_model, draw_skeleton, open_camera
+from .mirror import (
     CALIBRATIONS,
     FEATURE_LABELS,
     Deadband,
@@ -71,7 +72,6 @@ from l10_mirror import (
     save_calibration,
 )
 
-PROJECT = Path(__file__).resolve().parent
 WINDOW = "L10 Camera Mirror"
 CAM_W, CAM_H = 640, 480
 PANEL_W = 430
@@ -273,17 +273,28 @@ class HandWorker(threading.Thread):
 
 # ---------------------------------------------------------------- 文字绘制（中文用 PIL）
 class TextLayer:
-    FONT_PATHS = (
-        "C:/Windows/Fonts/msyh.ttc",
-        "C:/Windows/Fonts/simhei.ttf",
-        "C:/Windows/Fonts/simsun.ttc",
+    # 常见系统自带的中文字体；都没有时可以在设置文件里写 MIRROR_FONT = "字体文件路径"
+    WINDOWS_FONTS = ("msyh.ttc", "simhei.ttf", "simsun.ttc")
+    OTHER_FONTS = (
+        "/System/Library/Fonts/PingFang.ttc",
+        "/System/Library/Fonts/STHeiti Medium.ttc",
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+        "/usr/share/fonts/wqy-microhei/wqy-microhei.ttc",
     )
 
+    @classmethod
+    def font_candidates(cls) -> list[Path]:
+        found = [Path(cfg.MIRROR_FONT).expanduser()] if cfg.MIRROR_FONT else []
+        windir = Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts"
+        return found + [windir / name for name in cls.WINDOWS_FONTS] + [Path(p) for p in cls.OTHER_FONTS]
+
     def __init__(self) -> None:
-        self.path = next((p for p in self.FONT_PATHS if Path(p).exists()), None)
+        self.path = next((str(p) for p in self.font_candidates() if p.is_file()), None)
         if self.path is None:
-            print("[提示] 没找到中文字体，界面文字会显示成 ASCII")
+            print("[提示] 没找到中文字体，界面文字会显示成 ASCII（可以在设置文件里写 MIRROR_FONT = \"字体文件路径\"）")
         self._fonts: dict[int, ImageFont.FreeTypeFont] = {}
         self.items: list[tuple] = []
 
@@ -315,7 +326,7 @@ class TextLayer:
 class MirrorApp:
     def __init__(self, tracker: HandTracker, cap: cv2.VideoCapture, worker: HandWorker | None, game_mode: bool):
         self.tracker, self.cap, self.worker = tracker, cap, worker
-        self.calibration_path = PROJECT / cfg.MIRROR_CALIBRATION_FILE
+        self.calibration_path = CALIBRATION_PATH  # 和网页控制台共用
         self.mapper = MirrorMapper(load_calibration(self.calibration_path))
         self.filter = OneEuroFilter(cfg.MIRROR_FILTER_MIN_CUTOFF, cfg.MIRROR_FILTER_BETA)
         self.deadband = Deadband(cfg.MIRROR_DEADBAND)
@@ -614,7 +625,7 @@ class MirrorApp:
 
 # ---------------------------------------------------------------- 入口
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser = argparse.ArgumentParser(prog="l10-mirror", description=__doc__.split("\n")[0])
     add_connection_args(parser)
     parser.add_argument("--camera", type=int, default=cfg.MIRROR_CAMERA_INDEX, help="摄像头编号")
     parser.add_argument("--no-hand", action="store_true", help="不连接 L10，只看识别和映射")
@@ -625,12 +636,12 @@ def main() -> int:
     model_path = MODEL_PATH
     if args.download_model:
         download_model(model_path)
-        print("下一步：python 07_camera_mirror.py --no-hand")
+        print("下一步：l10-mirror --no-hand")
         return 0
     if not model_path.exists():
         print(
             f"缺少 MediaPipe 手部模型 {model_path}\n"
-            f"  运行 python 07_camera_mirror.py --download-model 自动下载，\n"
+            f"  运行 l10-mirror --download-model 自动下载，\n"
             f"  或用浏览器下载 {cfg.MIRROR_MODEL_URL}\n"
             f"  放到 {model_path}"
         )

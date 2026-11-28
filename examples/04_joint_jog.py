@@ -1,15 +1,15 @@
 """标定工具：逐个关节微调，得到适合你这只 L10 和你的物体的姿态。
 
 启动时先读取真机当前角度作为起点，所以不会突然大幅运动。
-调好后输入 s，把打印的 10 个数复制到 l10_config.py 的 POSES / OBJECTS 中。
+调好后输入 s，把打印的 10 个数写进 l10_settings.toml 的 [POSES] / [OBJECTS.xxx] 里（不用改源码）。
 
-    python 04_joint_jog.py
+    python examples/04_joint_jog.py
 
 命令：
   <关节号> <值>       设置单个关节，例如 3 128（关节号 1~10，见启动时的列表）
   <关节号> +N / -N    相对调整，例如 3 -20
   p v1 v2 ... v10     直接设置完整姿态
-  o                   张开（l10_config.POSES["open"]）
+  o                   张开（POSES["open"]）
   r                   重新读取真机角度
   f                   读取一次指尖力
   s                   打印当前目标姿态
@@ -22,8 +22,8 @@ import argparse
 
 from linkerbot_hand import HandError
 
-import l10_config as cfg
-from l10_hand import L10Hand, add_connection_args, check_pose, format_forces, format_pose
+from l10ctl import config as cfg
+from l10ctl.hand import L10Hand, add_connection_args, check_pose, format_forces, format_pose, format_toml_pose
 
 
 def print_joints(target: tuple[int, ...]) -> None:
@@ -54,6 +54,7 @@ def main() -> None:
                         break
                     if cmd == "s":
                         print(f"  {format_pose(target)}")
+                        print(f"  写进 l10_settings.toml，例如 [POSES] 下：open = {format_toml_pose(target)}")
                         continue
                     if cmd == "r":
                         target = hand.get_pose()

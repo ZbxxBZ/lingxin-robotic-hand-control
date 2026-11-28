@@ -3,7 +3,7 @@
 提供：连接 / 断开、发送 10 关节姿态、设置速度、读角度、读指尖力、
 读温度和故障。其他脚本都通过这里访问真机。
 
-    from l10_hand import L10Hand
+    from l10ctl.hand import L10Hand
     with L10Hand() as hand:
         print(hand.get_pose())
 """
@@ -24,7 +24,7 @@ from linkerbot_hand import (
 )
 from linkerbot_transport.can import CANTransport
 
-import l10_config as cfg
+from . import config as cfg
 
 Pose = tuple[int, ...]
 
@@ -225,6 +225,11 @@ def format_pose(pose: Sequence[int]) -> str:
     return "(" + ", ".join(str(int(v)) for v in pose) + ")"
 
 
+def format_toml_pose(pose: Sequence[int]) -> str:
+    """l10_settings.toml 里的写法，例如 [POSES] 下的 open = [255, ...]。"""
+    return "[" + ", ".join(str(int(v)) for v in pose) + "]"
+
+
 def format_forces(forces: dict[str, float | None]) -> str:
     parts = []
     for finger in cfg.FINGERS:
@@ -235,7 +240,7 @@ def format_forces(forces: dict[str, float | None]) -> str:
 
 
 def add_connection_args(parser: argparse.ArgumentParser) -> None:
-    """命令行覆盖 l10_config.py 中的连接参数。"""
+    """命令行覆盖连接参数（默认值来自 config / l10_settings.toml）。"""
     parser.add_argument("--side", choices=("left", "right"), default=cfg.SIDE)
     parser.add_argument(
         "--interface", choices=("pcan", "socketcan", "auto"), default=cfg.INTERFACE
@@ -306,7 +311,7 @@ class L10Hand:
                 print(
                     "[提示] 身份校验没有完成：手没有在时限内应答全部身份查询（C0/C1/C2/C4）。\n"
                     "       请先确认 can_bridge / 官方控制台已关闭、左右手设置正确，\n"
-                    "       再运行 python 00_probe_identity.py 看固件应答了哪些帧。"
+                    "       再运行 python examples/00_probe_identity.py 看固件应答了哪些帧。"
                 )
             try:
                 device.close()
@@ -343,7 +348,7 @@ class L10Hand:
         return pose
 
     def move_to(self, name: str, timeout_s: float = cfg.STAGE_TIMEOUT_S) -> Pose:
-        """移动到 l10_config.POSES 中的预设姿态（必要时分段，避免拇指与四指相撞）。"""
+        """移动到 config.POSES 中的预设姿态（必要时分段，避免拇指与四指相撞）。"""
         return self.move_safely(cfg.POSES[name], timeout_s=timeout_s)
 
     def move_safely(self, target: Iterable[float], timeout_s: float = cfg.STAGE_TIMEOUT_S) -> Pose:

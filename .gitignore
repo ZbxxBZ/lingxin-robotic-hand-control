@@ -3,12 +3,18 @@ releases/
 build/
 dist/
 
-# Python 缓存
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+.pytest_cache/
 
-# 镜像跟随的标定：每台机器、每个人自己标
+# 自己的设置（从 l10_settings.example.toml 复制）
+l10_settings.toml
+
+# 只在 exe 里有的文件
+l10ctl/bundled/
+
+# 旧版放在项目目录里的数据（现在在数据目录，见 l10ctl/paths.py）
 mirror_calibration.json
-
-# MediaPipe 手部模型：python 07_camera_mirror.py --download-model
 models/

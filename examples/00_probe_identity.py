@@ -9,9 +9,9 @@ C4（机械版本）四种查询，缺任何一种都会报
 只发送查询帧，不发送任何运动指令，手不会动。
 运行前请关闭 can_bridge、官方控制台和其他控制脚本（它们会占用 PCAN）。
 
-    python 00_probe_identity.py
-    python 00_probe_identity.py --side right
-    python 00_probe_identity.py --interface socketcan --channel can0
+    python examples/00_probe_identity.py
+    python examples/00_probe_identity.py --side right
+    python examples/00_probe_identity.py --interface socketcan --channel can0
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ import time
 
 import can
 
-import l10_config as cfg
+from l10ctl import config as cfg
 
 CAN_IDS = {"left": 0x28, "right": 0x27}
 QUERIES = (

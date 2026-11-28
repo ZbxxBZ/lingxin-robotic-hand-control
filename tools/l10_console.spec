@@ -1,13 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller 打包配置：把 06 网页控制台打成一个 exe（单文件，双击运行）。
+# PyInstaller 打包配置：把网页控制台打成一个 exe（单文件，双击运行）。
 #
-# 在 l10_hand 环境里、项目根目录运行：
-#   C:\Users\23116\.conda\envs\l10_hand\python.exe -m PyInstaller tools\l10_console.spec --noconfirm
-# 输出：dist\L10_Console_v<版本>.exe（版本号取自 l10_config.APP_VERSION）
+# 在装好本项目的环境里（pip install -e ".[camera,build]"），项目根目录运行：
+#   python -m PyInstaller tools/l10_console.spec --noconfirm
+# 输出：dist/L10_Console_v<版本>.exe（版本号取自 l10ctl/__init__.py）
 #
+# 打包前先下载手部识别模型（l10-mirror --download-model），它会被打进 exe。
 # exe 里包含：网页文件、官方 3D 模型、MediaPipe 手部识别模型、Python 和所有依赖。
 # PCAN 驱动（PCANBasic.dll）不打包，用电脑上安装的 PEAK 驱动。
-# 参数（l10_config.py）是打包时的值；改了参数要重新打包。
+# 参数用打包时的默认值；exe 旁边放一个 l10_settings.toml 就能覆盖，不用重新打包。
 
 import os
 import re
@@ -22,17 +23,26 @@ if os.path.isdir(LIB_BIN):
     os.environ["PATH"] = LIB_BIN + os.pathsep + os.environ.get("PATH", "")
 
 ROOT = os.path.abspath(os.path.join(SPECPATH, ".."))
-SDK = r"D:\project\linkerbot_sdk"
-with open(os.path.join(ROOT, "l10_config.py"), encoding="utf-8") as f:
-    VERSION = re.search(r'^APP_VERSION = "([^"]+)"', f.read(), re.M).group(1)
+sys.path.insert(0, ROOT)  # 没有 pip install 时也能找到 l10ctl
+
+with open(os.path.join(ROOT, "l10ctl", "__init__.py"), encoding="utf-8") as f:
+    VERSION = re.search(r'^__version__ = "([^"]+)"', f.read(), re.M).group(1)
+
+from l10ctl import config as cfg  # noqa: E402
+from l10ctl import paths  # noqa: E402
+
+MODEL = paths.data_file(cfg.MIRROR_MODEL_PATH)
+if not MODEL.is_file():
+    sys.exit(f"缺少手部识别模型 {MODEL}，先运行 l10-mirror --download-model")
 
 datas = [
-    (os.path.join(ROOT, "web"), "web"),
-    (os.path.join(ROOT, "models", "hand_landmarker.task"), "models"),
+    (os.path.join(ROOT, "l10ctl", "web"), os.path.join("l10ctl", "web")),
+    (str(MODEL), os.path.join("l10ctl", "bundled")),
 ]
 binaries = []
 hiddenimports = (
-    collect_submodules("linkerbot_hand")
+    collect_submodules("l10ctl")
+    + collect_submodules("linkerbot_hand")
     + collect_submodules("linkerbot_transport")
     + ["can.interfaces.pcan", "can.interfaces.pcan.pcan", "can.interfaces.pcan.basic"]
 )
@@ -44,12 +54,8 @@ for package in ("mediapipe",):
 datas += copy_metadata("python-can")
 
 a = Analysis(
-    [os.path.join(ROOT, "06_web_dashboard.py")],
-    pathex=[
-        ROOT,
-        os.path.join(SDK, "linkerbot-hand-python-sdk", "src"),
-        os.path.join(SDK, "linkerbot-transport", "src"),
-    ],
+    [os.path.join(ROOT, "tools", "console_entry.py")],
+    pathex=[ROOT],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
